@@ -1,21 +1,35 @@
 ---
 title: "Project G: Collaborating on Projects"
-output: html_notebook
+author: "FSKK: Fang Wang, Shea Ferguson, Kelley Lewis, Keah Tandon"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
 ---
 
 *This project will require you to collaborate with some of your fellow students to complete a statistical analysis and report. Here are some of the tasks that you must accomplish.*
 
-- Create a public GitHub repository with an RStudio project file (team leader)
-- Put a description of the project in the README.md file (team leader)
-- Email team members and Mike the repository address (team leader)
-- Write a short introduction
-- Provide a graphical display and descriptive statistics to compare groups
-- Conduct an analysis of variance (ANOVA) for omnibus inference
-- Check the conditions necessary for valid ANOVA inference
-- Conduct a bootstrap for omnibus inference without needing conditions
-- Construct Tukey pairwise confidence intervals (if appropriate)
-- Write a conclusions section
-- Assemble a complete knittable report (team leader)
+* Create a public GitHub repository with an RStudio project file (team leader)
+
+* Put a description of the project in the README.md file (team leader)
+
+* Email team members and Mike the repository address (team leader)
+
+* Write a short introduction
+
+* Provide a graphical display and descriptive statistics to compare groups
+
+* Conduct an analysis of variance (ANOVA) for omnibus inference
+
+* Check the conditions necessary for valid ANOVA inference
+
+* Conduct a bootstrap for omnibus inference without needing conditions
+
+* Construct Tukey pairwise confidence intervals (if appropriate)
+
+* Write a conclusions section
+
+* Assemble a complete knittable report (team leader)
 
 *If you write any functions, put these in a **Functions** folder. Put data in a **Data** folder. These should be subfolders in your main project folder. Your finished notebook should be neat and organized. Save this notebook with your team name and **Project G** in the file name, rather than the report title. Leave the instructions in place and begin your report after the last horizontal line below. All team members will receive the same score for this project. (40 points possible)*
 
@@ -24,3 +38,136 @@ output: html_notebook
 The *HSB2 Data* includes variables collected on a random sample of high school seniors. Conduct an analysis to compare performance on the test variable assigned to your team for the three socioeconomic groups. Include a graphical display and descriptive statistics. Also include an omnibus analysis that assumes valid conditions for parametric inference (ANOVA) as well as an omnibus analysis that does not assume these conditions (bootstrap). Construct pairwise Tukey confidence intervals, if appropriate.
 
 ***
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Domine">
+
+```{r setup, include=FALSE}
+
+rm(list = ls())
+
+library(here)
+library(showtext)
+library(shiny)
+library(ggplot2)
+library(dplyr)
+library(kableExtra)
+library(GGally)
+library(DiagrammeR)
+library(tidyverse)
+
+font_add_google(name = "Domine", family = "domine") 
+font_add_google(name = "Montserrat", family = "Montserrat")
+showtext_auto()
+
+hsb2 <- read.csv(here("Data", "hsb2.csv"), header = TRUE, sep = ",")
+
+hsb2$ses <- factor(hsb2$ses,
+                         labels = c("Low",
+                                    "Middle",
+                                    "High"))
+
+# Color scheme
+  # #462255
+  # #313b72
+  # #62a87c
+  # #7ee081
+  # #c3f3c0
+
+```
+
+``` {css echo=FALSE}
+
+<head>
+
+<style>
+
+body {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+
+}
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    z-index: 2;
+    color: #fff;
+    background-color: #8aaa79;
+    border-color: #8aaa79;
+}
+
+.list-group, .list-group-item {
+
+    color: #0081a7;
+    background-color: #FEFCFB;
+
+}
+
+p {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+  color: "black";
+
+}
+
+h1 {
+
+  font-family: "Domine", serif; 
+  font-size: 22px; 
+  color: #462255;
+
+}
+
+h2 {
+
+  font-family: "Domine", serif; 
+  font-size: 18px; 
+  color: #313b72; 
+  line-height: .5em; 
+
+}
+
+h3 {
+  
+  font-family: "Domine", serif; 
+  font-size: 15px; 
+  color: #462255; 
+  font-weight: "bold"; 
+
+}
+
+h4 {
+  
+  font-family: "Montserrat", sans; 
+  font-size: 18px; 
+  color: 'black'; 
+  line-height: 2em;
+  
+}
+
+table {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+  color: 'black';
+
+}
+
+</style>
+</head>
+
+```
+
+## Introduction
+
+
+\
+
+## Analysis
+
+
+\
+
+## Conclusions
+
