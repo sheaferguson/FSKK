@@ -1,0 +1,152 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Domine">
+
+```{r setup, include=FALSE}
+
+rm(list = ls())
+
+library(here)
+library(showtext)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+font_add_google(name = "Domine", family = "domine") 
+font_add_google(name = "Montserrat", family = "Montserrat")
+showtext_auto()
+
+hsb2 <- read.csv(here("Data", "hsb2.csv"), header = TRUE, sep = ",")
+
+hsb2$ses <- factor(hsb2$ses,
+                         labels = c("Low",
+                                    "Middle",
+                                    "High"))
+
+# Color scheme
+  # #462255
+  # #313b72
+  # #62a87c
+  # #7ee081
+  # #c3f3c0
+
+source(here("Functions","Tukey HSD in GG plot.R"))
+source(here("Functions","Theme Downcute.R"))
+
+```
+
+``` {css echo=FALSE}
+
+<head>
+
+<style>
+
+body {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+
+}
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+    z-index: 2;
+    color: #fff;
+    background-color: #8aaa79;
+    border-color: #8aaa79;
+}
+
+.list-group, .list-group-item {
+
+    color: #0081a7;
+    background-color: #FEFCFB;
+
+}
+
+p {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+  color: "black";
+
+}
+
+h1 {
+
+  font-family: "Domine", serif; 
+  font-size: 22px; 
+  color: #462255;
+
+}
+
+h2 {
+
+  font-family: "Domine", serif; 
+  font-size: 18px; 
+  color: #313b72; 
+  line-height: .5em; 
+
+}
+
+h3 {
+  
+  font-family: "Domine", serif; 
+  font-size: 15px; 
+  color: #462255; 
+  font-weight: "bold"; 
+
+}
+
+h4 {
+  
+  font-family: "Montserrat", sans; 
+  font-size: 18px; 
+  color: 'black'; 
+  line-height: 2em;
+  
+}
+
+table {
+
+  font-family: "Montserrat", sans; 
+  font-size: 14px; 
+  color: 'black';
+
+}
+
+</style>
+</head>
+
+```
+
+``` {r Tukey, echo=FALSE}
+
+# Create the ANOVA model using AOV
+
+model <- aov(hsb2$read ~ hsb2$ses)
+
+# Run Tukey HSD for the model
+
+Tukey <- TukeyHSD(model)
+
+# Rename the list for Tukey to make inline coding easier.
+
+names(Tukey) <- "confint"
+
+```
+
+Figure 4 illustrates Tukey pairwise comparisons for the three SES groups. I can state, with 95% confidence, that high SES students score higher for reading than either middle SES students (an average of between `r round(Tukey$confint[2,2])` and `r round(Tukey$confint[2,3])` points higher on the reading test) or low SES students (an average of between `r round(Tukey$confint[3,2])` and `r round(Tukey$confint[3,3])` points higher on the reading test) in the population represented by this sample. Although middle SES students score slightly higher on average in the sample than low SES students, this difference cannot be inferred to the population.
+
+``` {r plot, echo=FALSE, warning = FALSE}
+
+# Plot confidence intervals
+
+GGTukey(Tukey)
+
+```
+
