@@ -1,0 +1,85 @@
+---
+title: 'Project G: Collaborating on Projects'
+output:
+  html_document:
+    df_print: paged
+---
+
+*This project will require you to collaborate with some of your fellow students to complete a statistical analysis and report. Here are some of the tasks that you must accomplish.*
+
+- Create a public GitHub repository with an RStudio project file (team leader)
+- Put a description of the project in the README.md file (team leader)
+- Email team members and Mike the repository address (team leader)
+- Write a short introduction -6th
+- Provide a graphical display and descriptive statistics to compare groups-6th
+
+- Conduct an analysis of variance (ANOVA) for omnibus inference_Fang
+- Check the conditions necessary for valid ANOVA inference_Fang
+
+- Conduct a bootstrap for omnibus inference without needing conditions_Kelly
+- Construct Tukey pairwise confidence intervals (if appropriate)_kelly
+
+- Write a conclusions section
+- Assemble a complete knittable report (team leader)
+
+*If you write any functions, put these in a **Functions** folder. Put data in a **Data** folder. These should be subfolders in your main project folder. Your finished notebook should be neat and organized. Save this notebook with your team name and **Project G** in the file name, rather than the report title. Leave the instructions in place and begin your report after the last horizontal line below. All team members will receive the same score for this project. (40 points possible)*
+
+***
+
+The *HSB2 Data* includes variables collected on a random sample of high school seniors. Conduct an analysis to compare performance on the test variable assigned to your team for the three socioeconomic groups. Include a graphical display and descriptive statistics. Also include an omnibus analysis that assumes valid conditions for parametric inference (ANOVA) as well as an omnibus analysis that does not assume these conditions (bootstrap). Construct pairwise Tukey confidence intervals, if appropriate.
+
+***
+```{r include=FALSE}
+rm(list = ls())
+library(here)
+hsb2 <- read.csv(here("Data", "hsb2.csv"))
+```
+
+### The Analysis of Variance
+```{r include=FALSE}
+# assign our numbers as to factors
+hsb2$ses <- factor(hsb2$ses, 
+                   labels = c("low", "middle", "high"))
+```
+
+Table 1 shows the analysis of variance for reading scores as a function of 
+socioeconomic status. We can reject the null hypothesis of equal means 
+(p < .01) and conclude that reading score is associated with socioeconomic
+status if the conditions for the inference are met. 
+
+*Table 1. ANOVA for reading score as a function of SES*
+```{r echo=FALSE}
+# ANOVA
+aov.model <- aov(hsb2$read ~ hsb2$ses)
+summary(aov.model)
+```
+
+### The Conditions for Valid ANOVA Inference
+Figure 1 shows that the data points roughly follow a straight line indicating
+the data is normally distributed.
+
+*Figure 1. Normal Q-Q plot for residuals in this study.*  
+```{r echo=FALSE}
+# get the model 
+model <- lm(hsb2$read ~ hsb2$ses)
+# get the Q-Q plot
+std_residual <- rstandard(model)
+qqnorm(std_residual)
+qqline(std_residual)
+```
+
+Figure 2 shows a roughly homoscedastic distribution for residuals for each 
+group. In sum, the inference of ANOVA should be valid.  
+
+*Figure 2. Residual vs. fit plot across the three SES groups.*
+```{r echo=FALSE}
+# get the Residual vs. fit plot
+plot(model$fitted.values, model$residuals,
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Plot of Residuals vs. Fit")
+abline(0,0)
+```
+
+
+
