@@ -68,11 +68,11 @@ hsb2$ses <- factor(hsb2$ses,
                                     "High"))
 
 # Color scheme
-  # #8540A0
-  # #5462B6
-  # #62a87c
-  # #7ee081
-  # #c3f3c0
+  #8540A0
+  #5462B6
+  #62a87c
+  #7ee081
+  #c3f3c0
 
 source(here("Functions","Tukey HSD in GG plot.R"))
 source(here("Functions","Theme Downcute.R"))
@@ -171,7 +171,7 @@ table {
 
 \
 
-### Figure 1: Boxplots of ____ scores for three SES groups
+### Figure 1: Boxplots of reading scores for three SES groups
 
 ``` {r boxplots, echo = FALSE}
 
@@ -185,7 +185,7 @@ table {
 
 \
 
-### Table 1: SES group five-number summaries, means, and standard deviations for ____ scores
+### Table 1: SES group five-number summaries, means, and standard deviations for reading scores
 
 ``` {r summary, echo = FALSE}
 
@@ -195,69 +195,107 @@ table {
 
 \
 
-
-
-\
+Figure 2 shows that the data points roughly follow a straight line indicating
+the data is normally distributed.
 
 ### Figure 2: Normal Q-Q plot for residuals in the study
 
 ``` {r QQ, echo = FALSE}
 
+par(mar = c(5.1, 4.1, 1.1, 2.1))
 
+# get the model 
+model <- lm(hsb2$read ~ hsb2$ses)
+# get the Q-Q plot
+std_residual <- rstandard(model)
+qqnorm(std_residual, main = "")
+qqline(std_residual)
 
 ```
 
-\
-
-
-
-\
+Figure 3 shows a roughly homoscedastic distribution for residuals for each 
+group. In sum, the inference of ANOVA should be valid.
 
 ### Figure 3: Residual-fit plot across the three groups
-
 ``` {r fit plot, echo = FALSE}
 
+par(mar = c(5.1, 4.1, 1.1, 2.1))
 
+# get the Residual vs. fit plot
+plot(model$fitted.values, model$residuals,
+     xlab = "Fitted Values",
+     ylab = "Residuals")
+abline(0,0)
 
 ```
 
-\
+Table 2 shows the analysis of variance for reading scores as a function of 
+socioeconomic status. We can reject the null hypothesis of equal means 
+(p < .01) and conclude that reading score is associated with socioeconomic
+status if the conditions for the inference are met. 
 
-
-
-\
-
-### Table 2: ANOVA for ____ scores as a function of SES
+### Table 2: ANOVA for reading scores as a function of SES
 
 ``` {r ANOVA, echo = FALSE}
 
+# ANOVA
+aov.model <- aov(hsb2$read ~ hsb2$ses)
+anova <- summary(aov.model)
+anova <-  as.data.frame(do.call(cbind, anova))
+anova$`Sum Sq` <- round(anova$`Sum Sq`)
+anova$`Mean Sq` <- round(anova$`Mean Sq`,1)
+anova$`F value` <- round(anova$`F value`,3)
+anova$`Pr(>F)` <- round(anova$`Pr(>F)`,5)
+rownames(anova) <- c("SES","Residual")
 
+options(knitr.kable.NA = "")
+
+anova %>%
+  kable(longtable = T,
+        col.names = c("df",
+                      "SS",
+                      "MS",
+                      "F",
+                      "*p*"),
+        ) %>%
+    kable_styling(full_width = T) %>%
+  row_spec(0, color = "white", background = "#5462B6") %>%
+    row_spec(1:nrow(anova), color = "black")
 
 ```
 
-
 \
-
-
-
-\
-
-### Figure 4: Illustration of Tukey confidence intervals for the difference in mean ____ score for each pair of SES groups
 
 ``` {r Tukey, echo = FALSE}
 
+# Run Tukey HSD for the model
 
+Tukey <- TukeyHSD(aov.model)
+
+# Rename the list for Tukey to make inline coding easier.
+
+names(Tukey) <- "confint"
 
 ```
 
+Figure 4 illustrates Tukey pairwise comparisons for the three SES groups. I can state, with 95% confidence, that high SES students score higher for reading than either middle SES students (an average of between `r round(Tukey$confint[2,2])` and `r round(Tukey$confint[2,3])` points higher on the reading test) or low SES students (an average of between `r round(Tukey$confint[3,2])` and `r round(Tukey$confint[3,3])` points higher on the reading test) in the population represented by this sample. Although middle SES students score slightly higher on average in the sample than low SES students, this difference cannot be inferred to the population.
 
 \
 
+### Figure 4: Illustration of Tukey confidence intervals for the difference in mean reading score for each pair of SES groups
 
+``` {r Tukey plot, echo = FALSE}
+
+# Plot confidence intervals
+
+GGTukey(Tukey)
+
+```
 
 \
 
 ## Conclusions
+
 
 \
 
