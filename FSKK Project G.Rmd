@@ -64,7 +64,7 @@ hsb2 <- read.csv(here("Data", "hsb2.csv"), header = TRUE, sep = ",")
 
 hsb2$ses <- factor(hsb2$ses,
                          labels = c("Low",
-                                    "Middle",
+                                    "Medium",
                                     "High"))
 
 # Color scheme
@@ -163,35 +163,86 @@ table {
 ```
 
 ## Introduction
-
+Researchers wanted to examine what differences may exist in reading scores by SES. In this study, schools were randomly sampled by the National Center of Education Statistics and data was collected for high school seniors. Demographic variables were collected along with reading test scores for both public and private schools. The following report will address the question, do reading test scores differ by SES status? Our hypothesis is that reading scores will be highest for the higher SES group. 
 
 \
 
 ## Analysis
-
+Table 1 shows summary statistics for overall reading scores for all students. The mean score was 52.23 (SD = `r round(sd(hsb2$read),2)`).
 \
+
+### Table 1: Overall reading scores
+
+```{r descriptives, echo=FALSE}
+# sd(hsb2$read)
+
+overall_summary <- as.data.frame.list(summary(hsb2$read))
+overall_summary <- overall_summary[,c(1,2,3,5,6,4)]
+overall_summary$SD <- sd(hsb2$read)
+
+
+overall_summary %>%
+  kable(longtable = T,
+        digits = 2,
+        col.names = c("Min",
+          "Q1",
+          "Median",
+          "Q3",
+          "Max",
+          "Mean",
+          "SD")) %>%
+    kable_styling(full_width = T) %>%
+  row_spec(0, color = "white", background = "#5462B6")  %>%
+    row_spec(1, color = "black")
+```
+
+After looking at the overall scores, researchers wanted to look at reading scores by SES. Therefore, groups were created to represent low SES, medium SES, and high SES. Figure 1 shows the breakdown of reading scores by SES. Scores were similar among low and medium SES, but higher for the high SES group. 
 
 ### Figure 1: Boxplots of reading scores for three SES groups
 
 ``` {r boxplots, echo = FALSE}
+par(mar = c(5.1,4.1,2.1,2.1))
 
-
-
-```
-
-\
-
-
-
-\
-
-### Table 1: SES group five-number summaries, means, and standard deviations for reading scores
-
-``` {r summary, echo = FALSE}
-
-
+boxplot(hsb2$read ~ hsb2$ses,
+        ylab = "Reading Scores",
+        xlab = "SES",
+        names = c("Low", "Medium", "High"),
+        col = c("aquamarine", "pink", "#5462B6"))
 
 ```
+
+
+Table 2 shows the summary statistics for reading scores by SES status. The mean reading score for low SES was 48.28 (SD = 9.34). The mean reading score for medium SES was 51.58 (SD = 9.43). Lastly, the mean reading score for high SES was 56.5 (SD = 10.86). These results show that high SES group had the greater mean, but also the greater SD among the three groups. Additionally, the minimum and maximum score was highest for the high SES group and lowest for the low SES group. 
+
+### Table 2: SES group five-number summaries, means, and standard deviations for reading scores
+```{r echo=FALSE}
+tidy_read <- hsb2 %>%
+  group_by(ses) %>%
+  summarize(
+    Min=min(read),
+    Q1=quantile(read, probs = 0.25),
+    Median=median(read),
+    Q3=quantile(read, probs = .75),
+    Max=max(read),
+    Mean=mean(read),
+    SD=sd(read))
+
+  tidy_read %>%
+  kable(longtable = T,
+        digits=2,
+        col.names = c("SES",
+                      "Min",
+                      "Q1",
+                      "Median",
+                      "Q3",
+                      "Max",
+                      "Mean",
+                      "SD")) %>%
+    kable_styling(full_width = T) %>%
+  row_spec(0, color = "white", background = "#5462B6")%>%
+    row_spec(1:nrow(tidy_read), color = "black")
+```
+
 
 \
 
@@ -229,12 +280,9 @@ abline(0,0)
 
 ```
 
-Table 2 shows the analysis of variance for reading scores as a function of 
-socioeconomic status. We can reject the null hypothesis of equal means 
-(p < .01) and conclude that reading score is associated with socioeconomic
-status if the conditions for the inference are met. 
+Table 3 shows the analysis of variance for reading scores as a function of socioeconomic status. We can reject the null hypothesis of equal means (p < .01) and conclude that reading score is associated with socioeconomic status if the conditions for the inference are met. 
 
-### Table 2: ANOVA for reading scores as a function of SES
+### Table 3: ANOVA for reading scores as a function of SES
 
 ``` {r ANOVA, echo = FALSE}
 
