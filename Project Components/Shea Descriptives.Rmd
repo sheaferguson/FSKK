@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r include=FALSE}
+library(here)
+hsb2 <- read.csv(here("Data", "hsb2.csv"))
+
+```
+
+Introduction: Researchers wanted to examine what differences may exist in reading scores by SES. In this study, schools were randomly sampled by the National Center of Education Statistics and data was collected for high school seniors. Demographic variables were collected along with reading test scores for both public and private schools. The following report will address the question, do reading test scores differ by SES status? Our hypothesis is that reading scores will be highest for the higher SES group. 
+
+
+## Analaysis: Descriptive Statistics 
+
+Table 1: Overall Reading Scores
+```{r echo=FALSE}
+# sd(hsb2$read)
+summary(hsb2$read)
+```
+
+Table 1 shows summary statistics for overall reading scores for all students. The mean score was 52.23 (SD = 10.25). 
+
+
+```{r include=FALSE}
+# Create a separate matrix for each SES level that contains the read test scores
+hsb2_low <- hsb2[hsb2$ses == 1, 7]
+hsb2_med <- hsb2[hsb2$ses == 2, 7]
+hsb2_high <-hsb2[hsb2$ses == 3, 7]
+
+
+```
+
+After looking at the overall scores, researchers wanted to look at reading scores by SES. Therefore, groups were created to represent low SES, medium SES, and high SES.
+
+```{r echo=FALSE}
+boxplot(hsb2$read ~ hsb2$ses,
+        ylab = "Reading Scores",
+        xlab = "SES",
+        main = "Figure 1: Reading Scores by SES Status",
+        names = c("Low", "Medium", "High"),
+        col = c("aquamarine", "pink", "blue"))
+```
+
+Figure 1 shows the breakdown of reading scores by SES. Scores were similar among low and medium SES, but higher for the high SES group. 
+
+Table 2: Summary of Read Scores by Low SES
+```{r echo=FALSE}
+summary(hsb2_low)
+```
+
+
+Table 3: Summary of Read Scores by Medium SES
+```{r echo=FALSE}
+summary(hsb2_med)
+```
+
+
+Table 4: Summary of Read Scores by High SES
+```{r echo=FALSE}
+summary(hsb2_high)
+```
+
+
+Table 2-4 shows the summary statistics for reading scores by SES status. The mean reading score for low SES was 48.28 (SD = 9.34). The mean reading score for medium SES was 51.58 (SD = 9.43). Lastly, the mean reading score for high SES was 56.5 (SD = 10.86). These results show that high SES group had the greater mean, but also the greater SD among the three groups. Additionally, the minimum and maximum score was highest for the high SES group and lowest for the low SES group. 
