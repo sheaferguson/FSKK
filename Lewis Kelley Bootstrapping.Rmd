@@ -26,7 +26,7 @@ The *HSB2 Data* includes variables collected on a random sample of high school s
 
 ***
 
-```{r}
+```{r include = FALSE}
 library(here)
 
 library(boot)
@@ -37,7 +37,7 @@ hsb2 <- read.csv(here("Data", "hsb2.csv"),
 
 ```
 
-```{r}
+```{r include = FALSE}
 low_SES <- subset(hsb2, hsb2$ses == "1")
 
 med_SES <- subset(hsb2, hsb2$ses == "2")
@@ -45,45 +45,10 @@ med_SES <- subset(hsb2, hsb2$ses == "2")
 high_SES <- subset(hsb2, hsb2$ses == "3")
 ```
 
-```{r include = FALSE}
-# Custom function to find correlation
-# between SES and Reading Score
-
-corr.fun <- function(data, idx)
-{
-  df <- data[idx, ]
- 
-  # Find the spearman correlation between
-  # the 4th (SES) and 7th (Read Score) columns of dataset
-  c(cor(df[, 4], df[, 7], method = 'spearman'))
-}
-```
-
-```{r include = FALSE}
-# Setting the seed for
-# reproducability of results
-set.seed(42)
- 
-# Calling the boot function with the dataset
-# our function and no. of rounds
-bootstrap <- boot(hsb2, corr.fun, R = 10000)
- 
-# Display the result of boot function
-bootstrap
-```
-```{r}
-plot(bootstrap)
-```
-```{r include = FALSE}
-# Function to find the
-# bootstrap Confidence Intervals
-boot.ci(boot.out = bootstrap,
-        type = c("norm", "basic",
-                 "perc", "bca"))
-```
 
 
-```{r}
+
+```{r echo = FALSE}
 
 ### Low SES Bootstrap
 
@@ -92,7 +57,7 @@ mean_vector <- NULL
 n <- length(low_SES$read)
 
 # Take multiple samples (with replacement) and construct sampling
-# distrbution of the mean
+# distribution of the mean
 
 for (i in 1:10000) {
   the_sample <- sample(low_SES$read, n, replace = TRUE)
@@ -105,8 +70,7 @@ boot_int <- c(mean_vector[251], mean_vector[9750])
 
 ```
 
-```{r}
-
+```{r echo = FALSE}
 
 ### Medium SES Bootstrap
 
@@ -115,7 +79,7 @@ mean_vector2 <- NULL
 n <- length(med_SES$read)
 
 # Take multiple samples (with replacement) and construct sampling
-# distrbution of the mean
+# distribution of the mean
 
 for (i in 1:10000) {
   the_sample2 <- sample(med_SES$read, n, replace = TRUE)
@@ -129,7 +93,7 @@ boot_int2 <- c(mean_vector2[251], mean_vector2[9750])
 ```
 
 
-```{r}
+```{r echo = FALSE}
 ### High SES Bootstrap
 
 # Initialize objects
@@ -137,7 +101,7 @@ mean_vector3 <- NULL
 n <- length(high_SES$read)
 
 # Take multiple samples (with replacement) and construct sampling
-# distrbution of the mean
+# distribution of the mean
 
 for (i in 1:10000) {
   the_sample3 <- sample(high_SES$read, n, replace = TRUE)
@@ -149,5 +113,73 @@ mean_vector3 <- sort(mean_vector3)
 boot_int3 <- c(mean_vector3[251], mean_vector3[9750])
 
 ```
+  Conducting bootstrapping for the 95% confidence intervals to find the true 
+population mean reading scores for each level of SES resulted in the following intervals:
+
+$$ Low SES : (45.7 <= μ <= 51)$$
+
+$$ Medium SES : (49.7 <= μ <= 53.5)$$
+
+$$ High SES : (53.7 <= μ <= 59.2)$$
+  Bootstrapping can also be utilized to analyze the correlation between the 
+predictor variable, SES, and the response variable, reading score. Below are the 
+bootstrap statistics for the Spearman correlation, as well as the distribution
+of reading scores by SES. 
+
+```{r echo = FALSE}
+# Custom function to find correlation
+# between SES and Reading Score
+
+corr.fun <- function(data, idx)
+{
+  df <- data[idx, ]
+ 
+  # Find the spearman correlation between
+  # the 4th (SES) and 7th (Read Score) columns of dataset
+  c(cor(df[, 4], df[, 7], method = 'spearman'))
+}
+```
+
+```{r include= FALSE}
+# Setting the seed for
+# reproducability of results
+set.seed(42)
+ 
+# Calling the boot function with the dataset
+# our function and no. of rounds
+bootstrap <- boot(hsb2, corr.fun, R = 10000)
+ 
+# Display the result of boot function
+bootstrap
+
+
+
+```
+The t* statistic is 0.28, with a standard error of 0.068, as seen in Figures 1
+and 2 below.
+
+
+```{r echo= FALSE}
+plot(bootstrap)
+```
+
+Figures 1 and 2. t* and Quantiles of Standard Normal Distribution for SES and 
+Reading Scores.
+
+```{r include = FALSE}
+# Function to find the
+# bootstrap Confidence Intervals
+boot.ci(boot.out = bootstrap,
+        type = c("norm", "basic",
+                 "perc", "bca"))
+```
+
+The normal bootstrap 95% confidence interval for correlation is $$(0.1484, 0.4156)$$ .
+
+
+What this interval tells us is that we can be 95% certain that the actual 
+correlation between SES and reading score lies in this interval 95% of the time.
+
+
 
 
