@@ -82,6 +82,8 @@ hsb2$ses <- factor(hsb2$ses,
                                     "Medium",
                                     "High"))
 
+n_by_group <- count(hsb2, ses)
+
 # Color scheme
   #8540A0
   #5462B6
@@ -177,12 +179,12 @@ table {
 ```
 
 ## Introduction
-Researchers wanted to examine what differences may exist in reading scores by SES. In this study, schools were randomly sampled by the National Center of Education Statistics and data was collected for high school seniors. Demographic variables were collected along with reading test scores for both public and private schools. The following report will address the question, do reading test scores differ by SES status? Our hypothesis is that reading scores will be highest for the higher SES group. 
+We wanted to examine what differences may exist in reading scores by socioeconomic status (SES). In this study, we used data from the National Center of Education Statistics (NCES). NCES randomly sampled schools, and collected data for high school seniors (n=200). Demographic variables were collected along with reading test scores for both public and private school students. SES is categorized into three groups: low, medium, and high. The following report will address the following question: do reading test scores differ by SES status? Our hypothesis is that there will be differences in reading scores by SES and that reading scores will be highest for the high SES group. 
 
 \
 
 ## Analysis
-Table 1 shows summary statistics for overall reading scores for all students. The mean score was 52.23 (SD = `r round(sd(hsb2$read),2)`).
+Table 1 shows summary statistics for overall reading scores for all students in the sample. The mean score was 52.23 (SD = `r round(sd(hsb2$read),2)`).
 \
 
 ### Table 1: Overall reading scores
@@ -210,7 +212,7 @@ overall_summary %>%
     row_spec(1, color = "black")
 ```
 
-After looking at the overall scores, researchers wanted to look at reading scores by SES. Therefore, groups were created to represent low SES, medium SES, and high SES. Figure 1 shows the breakdown of reading scores by SES. Scores were similar among low and medium SES, but higher for the high SES group. 
+After looking at the overall scores, we wanted to look at reading scores by SES. Therefore, groups were created to represent low SES, medium SES, and high SES. Figure 1 shows the breakdown of reading scores by SES. Scores were similar among low and medium SES, but higher for the high SES group. 
 
 ### Figure 1: Boxplots of reading scores for three SES groups
 
@@ -226,7 +228,7 @@ boxplot(hsb2$read ~ hsb2$ses,
 ```
 
 
-Table 2 shows the summary statistics for reading scores by SES status. The mean reading score for low SES was 48.28 (SD = 9.34). The mean reading score for medium SES was 51.58 (SD = 9.43). Lastly, the mean reading score for high SES was 56.5 (SD = 10.86). These results show that high SES group had the greater mean, but also the greater SD among the three groups. Additionally, the minimum and maximum score was highest for the high SES group and lowest for the low SES group. 
+Table 2 shows the summary statistics for reading scores by SES. The mean reading score for low SES (n = `r n_by_group[1,2]`) was 48.28 (SD = 9.34). The mean reading score for medium SES (n = `r n_by_group[2,2]`) was 51.58 (SD = 9.43). Lastly, the mean reading score for high SES (n = `r n_by_group[3,2]`) was 56.5 (SD = 10.86). These results show that high SES group had the greatest mean, but also the greatest SD among the three groups. Additionally, the minimum and maximum score was highest for the high SES group and lowest for the low SES group. 
 
 ### Table 2: SES group five-number summaries, means, and standard deviations for reading scores
 ```{r echo=FALSE}
@@ -257,11 +259,9 @@ tidy_read <- hsb2 %>%
     row_spec(1:nrow(tidy_read), color = "black")
 ```
 
-
 \
 
-Figure 2 shows that the data points roughly follow a straight line indicating
-the data is normally distributed.
+Figure 2 contains the normal Q-Q plot. The residuals roughly follow a straight line indicating the data is normally distributed.
 
 ### Figure 2: Normal Q-Q plot for residuals in the study
 
@@ -278,8 +278,7 @@ qqline(std_residual)
 
 ```
 
-Figure 3 shows a roughly homoscedastic distribution for residuals for each 
-group. In sum, the inference of ANOVA should be valid.
+Figure 3 shows a roughly homoscedastic distribution for residuals for each group. In sum, the inference of ANOVA should be valid.
 
 ### Figure 3: Residual-fit plot across the three groups
 ``` {r fit plot, fig.height = 6.4, fig.width= 9, echo = FALSE}
@@ -294,7 +293,7 @@ abline(0,0)
 
 ```
 
-Table 3 shows the analysis of variance for reading scores as a function of socioeconomic status. We can reject the null hypothesis of equal means (p < .01) and conclude that reading score is associated with socioeconomic status if the conditions for the inference are met. 
+Table 3 shows the analysis of variance for reading scores as a function of socioeconomic status. We can reject the null hypothesis of equal means (p < .001) and conclude that reading score is associated with socioeconomic status. 
 
 ### Table 3: ANOVA for reading scores as a function of SES
 
@@ -340,7 +339,7 @@ names(Tukey) <- "confint"
 
 ```
 
-Figure 4 illustrates Tukey pairwise comparisons for the three SES groups. I can state, with 95% confidence, that high SES students score higher for reading than either medium SES students (an average of between `r round(Tukey$confint[2,2])` and `r round(Tukey$confint[2,3])` points higher on the reading test) or low SES students (an average of between `r round(Tukey$confint[3,2])` and `r round(Tukey$confint[3,3])` points higher on the reading test) in the population represented by this sample. Although medium SES students score slightly higher on average in the sample than low SES students, this difference cannot be inferred to the population.
+Figure 4 illustrates Tukey pairwise comparisons for the three SES groups. We can state, with 95% confidence, that high SES students score higher for reading than either medium SES students (an average of between `r round(Tukey$confint[3,2])` and `r round(Tukey$confint[3,3])` points higher on the reading test) or low SES students (an average of between `r round(Tukey$confint[2,2])` and `r round(Tukey$confint[2,3])` points higher on the reading test) in the population represented by this sample. Although medium SES students score slightly higher on average in the sample than low SES students, this difference cannot be inferred to the population.
 
 \
 
@@ -420,13 +419,13 @@ boot.confint <- boot.ci(boot.out = bootstrap,
 
 ```
 
-In addition to the ANOVA and post hoc testing, we decided to also conduct bootstrap analysis for the 95% confidence intervals to find the true population mean reading scores for each level of SES. This resulted in the following intervals:
+In addition to the ANOVA and post hoc testing, we decided to also conduct bootstrap analysis for the 95% confidence intervals to find the true population mean reading scores for each level of SES. This resulted in the following intervals, which align with the omnibus and post hoc findings above that high SES students score higher on reading tests on average than low or medium SES students:
 
 $$ Low SES : (45.7 \le μ \le 51)\\
 Medium SES : (49.7 \le μ \le 53.5)\\
 High SES : (53.7 \le μ \le 59.2)$$
 
-Bootstrapping can also be utilized to analyze the correlation between the predictor variable, SES, and the response variable, reading score. Below are the bootstrap statistics for the Spearman correlation as well as the distribution of reading scores by SES. $t_0$ is 0.28 with a standard error of 0.068. The normal bootstrap 95% confidence interval for correlation is (0.148, 0.416), which tells us is that we can be 95% certain that the actual correlation between SES and reading score lies in this interval 95% of the time. Figure 5 illustrates the histogram of the bootstrap replicates with $t_0$ indicated by the dotted vertical line and the normal Q-Q plot of the bootstrap replicates. This Q-Q plot is a little heavy on the lower tail unlike the Q-Q plot based on the sample that has a bit of light, ragged tails.
+Bootstrapping can also be utilized to analyze the correlation between the predictor variable, SES, and the response variable, reading score. Below are the bootstrap statistics for the Spearman correlation as well as the distribution of reading scores by SES. T0 is 0.28 with a standard error of 0.068. The normal bootstrap 95% confidence interval for correlation is (0.148, 0.416), which tells us is that we can be 95% certain that the actual correlation between SES and reading score lies in this interval 95% of the time. Figure 5 illustrates the histogram of the bootstrap replicates with t0 indicated by the dotted vertical line and the normal Q-Q plot of the bootstrap replicates. This Q-Q plot is a little heavy on the lower tail unlike the Q-Q plot based on the sample that has a bit of light, ragged tails.
 
 \
 
@@ -440,7 +439,7 @@ plot(bootstrap)
 ```
 
 ## Conclusions
-
+We examined the relationship of SES to standardized reading test scores for high school seniors. Sample results suggest that reading test score variation differs among students in different SES groups, with high SES students having the highest mean score. Using analysis of variance, we can reject the null hypothesis of mean equality (*p* < .001) and conclude that there are differences in mean reading test score based on SES. Post hoc testing supported our hypothesis that high SES students will have the highest mean reading scores (an average of between `r round(Tukey$confint[3,2])` and `r round(Tukey$confint[3,3])` points higher on the reading test than medium SES students and an average of between `r round(Tukey$confint[2,2])` and `r round(Tukey$confint[2,3])` points higher on the reading test than low SES students) in the population represented by this sample. We also conducted bootstrap analysis for these hypotheses and came to the same conclusion that high SES students will score higher (an average score of 54 to 59) than medium SES or low SES students (a maximum average score of 54 and 51, respectively). Neither test indicated a difference between medium and low SES students that can be inferred to the population.
 
 \
 
