@@ -1,4 +1,4 @@
-GGTukey<-function(Tukey){
+GGTukey<-function(Tukey, linecolor_hex = "#0000ff"){
   A<-require("tidyverse")
   if(A==TRUE){
     library(tidyverse)
@@ -18,7 +18,7 @@ GGTukey<-function(Tukey){
                       ymax=max),
                   width = 0.2)+
     geom_hline(yintercept=0,
-               color="#7ee081",
+               color=linecolor_hex,
                linetype="dashed",
                linewidth=1)+
     labs(x=NULL)+

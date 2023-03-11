@@ -1,0 +1,185 @@
+---
+title: "Project G: Collaborating on Projects"
+author: Kelley Lewis
+output: html_notebook
+---
+
+*This project will require you to collaborate with some of your fellow students to complete a statistical analysis and report. Here are some of the tasks that you must accomplish.*
+
+- Create a public GitHub repository with an RStudio project file (team leader)
+- Put a description of the project in the README.md file (team leader)
+- Email team members and Mike the repository address (team leader)
+- Write a short introduction
+- Provide a graphical display and descriptive statistics to compare groups
+- Conduct an analysis of variance (ANOVA) for omnibus inference
+- Check the conditions necessary for valid ANOVA inference
+- Conduct a bootstrap for omnibus inference without needing conditions
+- Construct Tukey pairwise confidence intervals (if appropriate)
+- Write a conclusions section
+- Assemble a complete knittable report (team leader)
+
+*If you write any functions, put these in a **Functions** folder. Put data in a **Data** folder. These should be subfolders in your main project folder. Your finished notebook should be neat and organized. Save this notebook with your team name and **Project G** in the file name, rather than the report title. Leave the instructions in place and begin your report after the last horizontal line below. All team members will receive the same score for this project. (40 points possible)*
+
+***
+
+The *HSB2 Data* includes variables collected on a random sample of high school seniors. Conduct an analysis to compare performance on the test variable assigned to your team for the three socioeconomic groups. Include a graphical display and descriptive statistics. Also include an omnibus analysis that assumes valid conditions for parametric inference (ANOVA) as well as an omnibus analysis that does not assume these conditions (bootstrap). Construct pairwise Tukey confidence intervals, if appropriate.
+
+***
+
+```{r include = FALSE}
+library(here)
+
+library(boot)
+library(ggplot2)
+
+hsb2 <- read.csv(here("Data", "hsb2.csv"),
+                      stringsAsFactors = FALSE)
+
+```
+
+```{r include = FALSE}
+low_SES <- subset(hsb2, hsb2$ses == "1")
+
+med_SES <- subset(hsb2, hsb2$ses == "2")
+
+high_SES <- subset(hsb2, hsb2$ses == "3")
+```
+
+
+
+
+```{r echo = FALSE}
+
+### Low SES Bootstrap
+
+# Initialize objects
+mean_vector <- NULL
+n <- length(low_SES$read)
+
+# Take multiple samples (with replacement) and construct sampling
+# distribution of the mean
+
+for (i in 1:10000) {
+  the_sample <- sample(low_SES$read, n, replace = TRUE)
+  mean_vector <- c(mean_vector, mean(the_sample))
+}
+
+# Sort the vector and cut off 2.5% on each end
+mean_vector <- sort(mean_vector)
+boot_int <- c(mean_vector[251], mean_vector[9750])
+
+```
+
+```{r echo = FALSE}
+
+### Medium SES Bootstrap
+
+# Initialize objects
+mean_vector2 <- NULL
+n <- length(med_SES$read)
+
+# Take multiple samples (with replacement) and construct sampling
+# distribution of the mean
+
+for (i in 1:10000) {
+  the_sample2 <- sample(med_SES$read, n, replace = TRUE)
+  mean_vector2 <- c(mean_vector2, mean(the_sample2))
+}
+
+# Sort the vector and cut off 2.5% on each end
+mean_vector2 <- sort(mean_vector2)
+boot_int2 <- c(mean_vector2[251], mean_vector2[9750])
+
+```
+
+
+```{r echo = FALSE}
+### High SES Bootstrap
+
+# Initialize objects
+mean_vector3 <- NULL
+n <- length(high_SES$read)
+
+# Take multiple samples (with replacement) and construct sampling
+# distribution of the mean
+
+for (i in 1:10000) {
+  the_sample3 <- sample(high_SES$read, n, replace = TRUE)
+  mean_vector3 <- c(mean_vector3, mean(the_sample3))
+}
+
+# Sort the vector and cut off 2.5% on each end
+mean_vector3 <- sort(mean_vector3)
+boot_int3 <- c(mean_vector3[251], mean_vector3[9750])
+
+```
+  Conducting bootstrapping for the 95% confidence intervals to find the true 
+population mean reading scores for each level of SES resulted in the following intervals:
+
+$$ Low SES : (45.7 <= μ <= 51)$$
+
+$$ Medium SES : (49.7 <= μ <= 53.5)$$
+
+$$ High SES : (53.7 <= μ <= 59.2)$$
+  Bootstrapping can also be utilized to analyze the correlation between the 
+predictor variable, SES, and the response variable, reading score. Below are the 
+bootstrap statistics for the Spearman correlation, as well as the distribution
+of reading scores by SES. 
+
+```{r echo = FALSE}
+# Custom function to find correlation
+# between SES and Reading Score
+
+corr.fun <- function(data, idx)
+{
+  df <- data[idx, ]
+ 
+  # Find the spearman correlation between
+  # the 4th (SES) and 7th (Read Score) columns of dataset
+  c(cor(df[, 4], df[, 7], method = 'spearman'))
+}
+```
+
+```{r include= FALSE}
+# Setting the seed for
+# reproducability of results
+set.seed(42)
+ 
+# Calling the boot function with the dataset
+# our function and no. of rounds
+bootstrap <- boot(hsb2, corr.fun, R = 10000)
+ 
+# Display the result of boot function
+bootstrap
+
+
+
+```
+The t* statistic is 0.28, with a standard error of 0.068, as seen in Figures 1
+and 2 below.
+
+
+```{r echo= FALSE}
+plot(bootstrap)
+```
+
+Figures 1 and 2. t* and Quantiles of Standard Normal Distribution for SES and 
+Reading Scores.
+
+```{r include = FALSE}
+# Function to find the
+# bootstrap Confidence Intervals
+boot.ci(boot.out = bootstrap,
+        type = c("norm", "basic",
+                 "perc", "bca"))
+```
+
+The normal bootstrap 95% confidence interval for correlation is $$(0.1484, 0.4156)$$ .
+
+
+What this interval tells us is that we can be 95% certain that the actual 
+correlation between SES and reading score lies in this interval 95% of the time.
+
+
+
+
